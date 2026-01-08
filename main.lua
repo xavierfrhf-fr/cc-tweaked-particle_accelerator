@@ -9,7 +9,13 @@ end
 -- TABLES
 local verbose = {
     periph = true
+    speed = false
 }
+
+local craft = {
+    number_of_accelerators = 1,
+    ring_of_colision = 1
+} -- might be generated later in the initialization phase
 
 local periph_name = {
     A1R1I1 = "redstone_relay_4",
@@ -20,6 +26,7 @@ local periph_name = {
 
 local hardware_state = {
     A1 = {
+        active = false,
         R1 = {
             I1 = 0,
             O1 = true
@@ -31,6 +38,7 @@ local hardware_state = {
         }
     },
     A2 = {
+        active = false,
         R1 = {
             I1 = 0,
             O1 = true
@@ -42,6 +50,8 @@ local hardware_state = {
         }
     }
 }
+
+
 
 
 local wrapped_periph = {}
@@ -64,9 +74,34 @@ end
 
 -- CALLABLE FUNCTIONS
 local function pulse_relay()
+    -- pulse relay code here
+end
+
+local function start_craft()
+    -- start craft code here
+end
 
 
 -- MAIN ASYNC FUNCTIONS
+local function user_cmd_input()
+    while true do
+        local input = read()
+        if input == "exit" then
+            print("Exiting program...")
+            os.exit()
+        elseif input == "start" then
+            if hardware_state.A1.active or hardware_state.A2.active then
+                print("Accelerator already running!")
+            else
+                start_craft()
+                print("Starting accelerator...")
+            end
+
+        else
+            print("Unknown command: " .. input)
+        end
+        coroutine.yield()
+    end
 
 local function observe_speed()
     while true do
