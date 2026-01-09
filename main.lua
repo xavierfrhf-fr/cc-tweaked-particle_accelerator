@@ -8,7 +8,7 @@ end
 
 -- TABLES
 local verbose = {
-    periph = true
+    periph = true,
     speed = false
 }
 
@@ -102,11 +102,12 @@ local function init_relays()
     for name, R in pairs(wrapped_periph) do
         if name:sub(-2) == "O1" or name:sub(-2) == "O2" then
             R.setOutput('top', true)
+            if verbose.periph then
+                print("Initialized relay " .. name)
+            end
         end
 
-        if verbose.periph then
-            print("Initialized relay " .. name)
-        end
+
     end
 end
 
@@ -130,11 +131,16 @@ local function user_cmd_input()
         end
         coroutine.yield()
     end
+end
 
 local function observe_speed()
     while true do
         hardware_state.A1.R1.I1 = wrapped_periph.A1R1I1.getAnalogInput('top')
         hardware_state.A2.R1.I1 = wrapped_periph.A2R1I1.getAnalogInput('top')
+        if verbose.speed then
+            print("A1R1I1 speed: " .. hardware_state.A1.R1.I1)
+            print("A2R1I1 speed: " .. hardware_state.A2.R1.I1)
+        end
         coroutine.yield()
     end
 end
@@ -143,7 +149,7 @@ end
 -- MAIN PROGRAM
 wrap_peripherals()
 init_relays()
-parrallel.waitForAll(
+parallel.waitForAll(
     user_cmd_input,
     observe_speed
 )
