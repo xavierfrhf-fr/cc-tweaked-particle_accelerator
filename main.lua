@@ -22,6 +22,16 @@ local periph_name = {
     A1R1O1 = "redstone_relay_5",
     A2R1I1 = "redstone_relay_6",
     A2R1O1 = "redstone_relay_7",
+    A1R2O2 = "redstone_relay_8",
+    A1R2I1 = "redstone_relay_9",
+    A1R2O1 = "redstone_relay_10",
+    A2R2O2 = "redstone_relay_11",
+    A2R2I1 = "redstone_relay_12",
+    A2R2O1 = "redstone_relay_13",
+    A2R1O2 = "redstone_relay_14",
+    A1R1O2 = "redstone_relay_15",
+    A2R1E1 = "redstone_relay_16",
+    A1R1E1 = "redstone_relay_17"
 }
 
 local hardware_state = {
@@ -29,24 +39,26 @@ local hardware_state = {
         active = false,
         R1 = {
             I1 = 0,
-            O1 = true
+            O1 = 'locked', --possible states: 'locked', 'available','waiting_speed', 'pulsing'
+            O2 = 'locked'
         },
         R2 = {
             I1 = 0,
-            O1 = true,
-            O2 = true
+            O1 = 'locked',
+            O2 = 'locked'
         }
     },
     A2 = {
         active = false,
         R1 = {
             I1 = 0,
-            O1 = true
+            O1 = 'locked',
+            O2 = 'locked'
         },
         R2 = {
             I1 = 0,
-            O1 = true,
-            O2 = true
+            O1 = 'locked',
+            O2 = 'locked'
         }
     }
 }
@@ -77,10 +89,26 @@ local function pulse_relay()
     -- pulse relay code here
 end
 
+local function plan_craft()
+    -- plan craft code here
+end
+
 local function start_craft()
     -- start craft code here
 end
 
+-- INITIALIZATION FUNCTIONS
+local function init_relays()
+    for name, R in pairs(wrapped_periph) do
+        if name:sub(-2) == "O1" or name:sub(-2) == "O2" then
+            R.setOutput('top', true)
+        end
+
+        if verbose.periph then
+            print("Initialized relay " .. name)
+        end
+    end
+end
 
 -- MAIN ASYNC FUNCTIONS
 local function user_cmd_input()
@@ -112,6 +140,12 @@ local function observe_speed()
 end
 
 
-
+-- MAIN PROGRAM
+wrap_peripherals()
+init_relays()
+parrallel.waitForAll(
+    user_cmd_input,
+    observe_speed
+)
 
 
