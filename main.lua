@@ -323,7 +323,8 @@ wrap_peripherals()
 init_relays()
 parallel.waitForAll(
     user_cmd_input,
-    observe_speed
+    observe_speed,
+    event_manager
 )
 
 
