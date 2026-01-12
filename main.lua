@@ -20,13 +20,13 @@ local verbose = {
 local craft = {
     A1 = {
         R1 = {
-            speed_target = 4,
+            speed_target = 5,
             collisions = false,
             upper_ring = true,
             item_injection = false
         },
         R2 = {
-            speed_target = 8,
+            speed_target = 11,
             collisions = false,
             upper_ring = false,
             item_injection = true
@@ -277,6 +277,7 @@ local function event_manager()
                 print("A1R2 reached target speed!")
                 if craft.A1.R2.item_injection then
                     print("Injecting item into A1R2...")
+                    pulse_relay("A1R2E1")
                     print("Not implemented yet.")
                 elseif craft.A1.R2.upper_ring then
                     print("Activating upper ring for A1R2...")
@@ -302,6 +303,7 @@ local function event_manager()
                 print("A2R2 reached target speed!")
                 if craft.A2.R2.item_injection then
                     print("Injecting item into A2R2...")
+                    pulse_relay("A2R2E1")
                 elseif craft.A2.R2.upper_ring then
                     print("Activating upper ring for A2R2...")
                 elseif craft.A2.R2.collisions then
