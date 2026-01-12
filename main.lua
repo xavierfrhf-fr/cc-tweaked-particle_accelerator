@@ -251,6 +251,8 @@ local function observe_speed()
     while true do
         hardware_state.A1.R1.I1 = wrapped_periph.A1R1I1.getAnalogInput('top')
         hardware_state.A2.R1.I1 = wrapped_periph.A2R1I1.getAnalogInput('top')
+        hardware_state.A1.R2.I1 = wrapped_periph.A1R2I1.getAnalogInput('top')
+        hardware_state.A2.R2.I1 = wrapped_periph.A2R2I1.getAnalogInput('top')
         if verbose.speed then
             print("A1R1I1 speed: " .. hardware_state.A1.R1.I1)
             print("A2R1I1 speed: " .. hardware_state.A2.R1.I1)
