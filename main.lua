@@ -206,17 +206,19 @@ local function init_relays()
             if verbose.periph then
                 print("Skipping initialization of input relay " .. name)
             end
-            continue
-        end
-        default_state = hardware_state[relay_accelerator][relay_ring][relay_type].default
-        if wrapped_periph[name] ~= nil and relay_type:sub(1,1) ~= "I" then
-            wrapped_periph[name].setOutput('top', default_state)
-            hardware_state[relay_accelerator][relay_ring][relay_type].actual = default_state
-            if verbose.periph then
-                print("Initialized relay " .. name .. " to default state: " .. tostring(default_state))
+        elseif relay_type:sub(1,1) == "O" or relay_type:sub(1,1) == "E" then
+            default_state = hardware_state[relay_accelerator][relay_ring][relay_type].default
+            if wrapped_periph[name] ~= nil and relay_type:sub(1,1) ~= "I" then
+                wrapped_periph[name].setOutput('top', default_state)
+                hardware_state[relay_accelerator][relay_ring][relay_type].actual = default_state
+                if verbose.periph then
+                    print("Initialized relay " .. name .. " to default state: " .. tostring(default_state))
+                end
+            else
+                print("Cannot initialize relay " .. name .. ": not wrapped!")
             end
         else
-            print("Cannot initialize relay " .. name .. ": not wrapped!")
+            print("Cannot initialize relay " .. name .. ": unknown type " .. relay_type)
         end
     end
 end
