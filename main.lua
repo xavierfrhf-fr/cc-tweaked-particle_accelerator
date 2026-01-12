@@ -7,14 +7,46 @@ local function print_table(table)
 end
 
 -- TABLES
+local pulseLen = {
+    O = 0.2,
+    E = 0.5
+} -- seconds
+
 local verbose = {
     periph = true,
     speed = false
 }
 
 local craft = {
-    number_of_accelerators = 1,
-    ring_of_colision = 1
+    A1 = {
+        R1 = {
+            speed_target = 4,
+            collisions = false,
+            upper_ring = true,
+            item_injection = false
+        },
+        R2 = {
+            speed_target = 8,
+            collisions = false,
+            upper_ring = false,
+            item_injection = true
+        }
+    },
+    A2 = {
+        R1 = {
+            speed_target = 15,
+            collisions = false,
+            upper_ring = false,
+            item_injection = false
+        },
+        R2 = {
+            speed_target = 15,
+            collisions = false,
+            upper_ring = false,
+            item_injection = false
+        }
+
+    }
 } -- might be generated later in the initialization phase
 
 local periph_name = {
@@ -39,26 +71,67 @@ local hardware_state = {
         active = false,
         R1 = {
             I1 = 0,
-            O1 = 'locked', --possible states: 'locked', 'available','waiting_speed', 'pulsing'
-            O2 = 'locked'
+            O1 = {
+                actual = true,
+                default = true,
+            }, 
+            O2 = {
+                actual = true,
+                default = true
+            },
+            E1 = {
+                actual = true,
+                default = true
+            }
         },
         R2 = {
             I1 = 0,
-            O1 = 'locked',
-            O2 = 'locked'
+            O1 = {
+                actual = true,
+                default = true
+            },
+            O2 = {
+                actual = true,
+                default = true
+            },
+            E1 = {
+                actual = true,
+                default = true
+            }
         }
     },
     A2 = {
         active = false,
         R1 = {
             I1 = 0,
-            O1 = 'locked',
-            O2 = 'locked'
+            O1 = {
+                actual = true,
+                default = true
+            },
+            O2 = {
+                actual = true,
+                default = true
+            },
+            E1 = {
+                actual = true,
+                default = true
+
+            }
         },
         R2 = {
             I1 = 0,
-            O1 = 'locked',
-            O2 = 'locked'
+            O1 = {
+                actual = true,
+                default = true,
+            },
+            O2 = {
+                actual = true,
+                default = true,
+            },
+            E1 = {
+                actual = true,
+                default = true,
+            }
         }
     }
 }
@@ -85,9 +158,35 @@ local function wrap_peripherals()
 end
 
 -- CALLABLE FUNCTIONS
-local function pulse_relay()
-    -- pulse relay code here
+local function pulse_relay(relay_name)
+    if wrapped_periph[relay_name] == nil then
+        print("Cannot pulse relay " .. relay_name .. ": not wrapped!")
+        return false
+    else
+        
+        relay_accelerator = relay_name:sub(1,2)
+        relay_ring = relay_name:sub(3,4)
+        relay_type = relay_name:sub(5, 6)
+        default_state = hardware_state[relay_accelerator][relay_ring][relay_type].default
+        actual_state = hardware_state[relay_accelerator][relay_ring][relay_type].actual
+        if verbose.periph then
+            print("Pulsing relay " .. relay_name .. " for " .. pulseLen[relay_type] .. " seconds.")
+            if actual_state != default_state then
+                print("Warning: relay " .. relay_name .. " actual state (" .. tostring(actual_state) .. ") differs from default state (" .. tostring(default_state) .. ")!")
+            end
+        relay = wrapped_periph[relay_name]
+        hardware_state[relay_accelerator][relay_ring][relay_type].actual = not default_state
+        relay.setOutput('top', not default_state)
+        os.sleep(pulseLen[relay_type:sub(1,1)])
+        relay.setOutput('top', default_state)
+        hardware_state[relay_accelerator][relay_ring][relay_type].actual = default_state
+        return true
+        end
+    end        
 end
+
+
+
 
 local function plan_craft()
     -- plan craft code here
@@ -99,15 +198,20 @@ end
 
 -- INITIALIZATION FUNCTIONS
 local function init_relays()
-    for name, R in pairs(wrapped_periph) do
-        if name:sub(-2) == "O1" or name:sub(-2) == "O2" then
-            R.setOutput('top', true)
+    for name, periph in pairs(periph_name) do
+        relay_accelerator = name:sub(1,2)
+        relay_ring = name:sub(3,4)
+        relay_type = name:sub(5, 6)
+        default_state = hardware_state[relay_accelerator][relay_ring][relay_type].default
+        if wrapped_periph[name] ~= nil and relay_type:sub(1,1) ~= "I" then
+            wrapped_periph[name].setOutput('top', default_state)
+            hardware_state[relay_accelerator][relay_ring][relay_type].actual = default_state
             if verbose.periph then
-                print("Initialized relay " .. name)
+                print("Initialized relay " .. name .. " to default state: " .. tostring(default_state))
             end
+        else
+            print("Cannot initialize relay " .. name .. ": not wrapped!")
         end
-
-
     end
 end
 
@@ -144,6 +248,66 @@ local function observe_speed()
         coroutine.yield()
     end
 end
+
+local function event_manager()
+    while true do
+        ready_to_collide = false
+        if hardware_state.A1.active then
+            if hardware_state.A1.R1.I1 >= craft.A1.R1.speed_target then
+                print("A1R1 reached target speed!")
+                if craft.A1.R1.item_injection then
+                    print("Injecting item into A1R1...")
+                    print("Not implemented yet.")
+                elseif craft.A1.R1.upper_ring then
+                    print("Activating upper ring for A1R1...")
+                    pulse_relay("A1R1O1")
+                elseif craft.A1.R1.collisions then
+                    ready_to_collide = true
+                    print("Managing collisions for A1R1...")
+                end
+            elseif hardware_state.A1.R2.I1 >= craft.A1.R2.speed_target then
+                print("A1R2 reached target speed!")
+                if craft.A1.R2.item_injection then
+                    print("Injecting item into A1R2...")
+                    print("Not implemented yet.")
+                elseif craft.A1.R2.upper_ring then
+                    print("Activating upper ring for A1R2...")
+                    print("Not implemented yet.")
+                elseif craft.A1.R2.collisions then
+                    ready_to_collide = true
+                    print("Managing collisions for A1R2...")
+                end
+            end
+        end
+        if hardware_state.A2.active then
+            if hardware_state.A2.R1.I1 >= craft.A2.R1.speed_target then
+                print("A2R1 reached target speed!")
+                if craft.A2.R1.item_injection then
+                    print("Injecting item into A2R1...")
+                elseif craft.A2.R1.upper_ring then
+                    print("Activating upper ring for A2R1...")
+                elseif craft.A2.R1.collisions then
+                    ready_to_collide = true
+                    print("Managing collisions for A2R1...")
+                end
+            elseif hardware_state.A2.R2.I1 >= craft.A2.R2.speed_target then
+                print("A2R2 reached target speed!")
+                if craft.A2.R2.item_injection then
+                    print("Injecting item into A2R2...")
+                elseif craft.A2.R2.upper_ring then
+                    print("Activating upper ring for A2R2...")
+                elseif craft.A2.R2.collisions then
+                    ready_to_collide = true
+                    print("Managing collisions for A2R2...")
+                end
+            end
+        end
+        coroutine.yield()
+    end
+end
+
+
+    
 
 
 -- MAIN PROGRAM
