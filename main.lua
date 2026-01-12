@@ -202,6 +202,12 @@ local function init_relays()
         relay_accelerator = name:sub(1,2)
         relay_ring = name:sub(3,4)
         relay_type = name:sub(5, 6)
+        if relay_type:sub(1,1) == "I" then
+            if verbose.periph then
+                print("Skipping initialization of input relay " .. name)
+            end
+            continue
+        end
         default_state = hardware_state[relay_accelerator][relay_ring][relay_type].default
         if wrapped_periph[name] ~= nil and relay_type:sub(1,1) ~= "I" then
             wrapped_periph[name].setOutput('top', default_state)
