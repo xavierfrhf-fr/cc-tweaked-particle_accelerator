@@ -64,6 +64,8 @@ local periph_name = {
     A1R1O2 = "redstone_relay_15",
     A2R1E1 = "redstone_relay_16",
     A1R1E1 = "redstone_relay_17"
+    A1R2E1 = "redstone_relay_18",
+    A2R2E1 = "redstone_relay_19"
 }
 
 local hardware_state = {
