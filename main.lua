@@ -171,7 +171,7 @@ local function pulse_relay(relay_name)
         actual_state = hardware_state[relay_accelerator][relay_ring][relay_type].actual
         if verbose.periph then
             print("Pulsing relay " .. relay_name .. " for " .. pulseLen[relay_type] .. " seconds.")
-            if actual_state != default_state then
+            if actual_state ~= default_state then
                 print("Warning: relay " .. relay_name .. " actual state (" .. tostring(actual_state) .. ") differs from default state (" .. tostring(default_state) .. ")!")
             end
         relay = wrapped_periph[relay_name]
