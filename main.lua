@@ -187,6 +187,41 @@ local function pulse_relay(relay_name)
     end        
 end
 
+local function pulse_2_relays(relay_name1, relay_name2)
+    #Send pulse to both relays simultaneously
+    if wrapped_periph[relay_name1] == nil then
+        print("Cannot pulse relay " .. relay_name1 .. ": not wrapped!")
+        return false
+    end
+    if wrapped_periph[relay_name2] == nil then
+        print("Cannot pulse relay " .. relay_name2 .. ": not wrapped!")
+        return false
+    end
+    relay_accelerator1 = relay_name1:sub(1,2)
+    relay_ring1 = relay_name1:sub(3,4)
+    relay_type1 = relay_name1:sub(5, 6)
+    default_state1 = hardware_state[relay_accelerator1][relay_ring1][relay_type1].default
+    relay_accelerator2 = relay_name2:sub(1,2)
+    relay_ring2 = relay_name2:sub(3,4)
+    relay_type2 = relay_name2:sub(5, 6)
+    default_state2 = hardware_state[relay_accelerator2][relay_ring2][relay_type2].default
+    if verbose.periph then
+        print("Pulsing relays " .. relay_name1 .. " and " .. relay_name2 .. " simultaneously for " .. math.max(pulseLen[relay_type1:sub(1,1)], pulseLen[relay_type2:sub(1,1)]) .. " seconds.")
+    end
+    relay1 = wrapped_periph[relay_name1]
+    relay2 = wrapped_periph[relay_name2]
+    hardware_state[relay_accelerator1][relay_ring1][relay_type1].actual = not default_state1
+    hardware_state[relay_accelerator2][relay_ring2][relay_type2].actual = not default_state2
+    relay1.setOutput('top', not default_state1)
+    relay2.setOutput('top', not default_state2)
+    os.sleep(math.max(pulseLen[relay_type1:sub(1,1)], pulseLen[relay_type2:sub(1,1)]))
+    relay1.setOutput('top', default_state1)
+    relay2.setOutput('top', default_state2)
+    hardware_state[relay_accelerator1][relay_ring1][relay_type1].actual = default_state1
+    hardware_state[relay_accelerator2][relay_ring2][relay_type2].actual = default_state2
+    return true
+end
+
 
 
 
@@ -311,8 +346,13 @@ local function event_manager()
                 elseif craft.A2.R2.upper_ring then
                     print("Activating upper ring for A2R2...")
                 elseif craft.A2.R2.collisions then
-                    ready_to_collide = true
-                    print("Managing collisions for A2R2...")
+                    if ready_to_collide then
+                        print("Both accelerators ready to collide! Initiating collision sequence...")
+                        pulse_2_relays("A1R1O1", "A2R1O1")
+                    else
+                        print("A2R2 ready for collision, but A2R1 not ready yet.")
+                    end
+                    
                 end
             end
         end
