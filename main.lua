@@ -55,7 +55,7 @@ local periph_name = {
     A1R1I1 = "redstone_relay_4",
     A1R1O1 = "redstone_relay_5",
     A2R1I1 = "redstone_relay_6",
-    A2R1O1 = "redstone_relay_7",
+    A2R1O1 = "redstone_relay_20",
     A1R2O2 = "redstone_relay_8",
     A1R2I1 = "redstone_relay_9",
     A1R2O1 = "redstone_relay_10",
@@ -65,7 +65,7 @@ local periph_name = {
     A2R1O2 = "redstone_relay_14",
     A1R1O2 = "redstone_relay_15",
     A2R1E1 = "redstone_relay_16",
-    A1R1E1 = "redstone_relay_17"
+    A1R1E1 = "redstone_relay_17",
     A1R2E1 = "redstone_relay_18",
     A2R2E1 = "redstone_relay_19"
 }
@@ -190,7 +190,7 @@ local function pulse_relay(relay_name)
 end
 
 local function pulse_2_relays(relay_name1, relay_name2)
-    #Send pulse to both relays simultaneously
+    --Send pulse to both relays simultaneously
     if wrapped_periph[relay_name1] == nil then
         print("Cannot pulse relay " .. relay_name1 .. ": not wrapped!")
         return false
@@ -334,7 +334,7 @@ local function event_manager()
                     print("Not implemented yet.")
                 elseif craft.A1.R2.collisions then
                     ready_to_collide = true
-                    print("Managing collisions for A1R2...")
+                    print("A1R2 Ready for collision...")
                 end
             end
         end
