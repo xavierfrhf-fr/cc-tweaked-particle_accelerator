@@ -1,4 +1,5 @@
 --Code for CC:Tweaked to manage an oritech particle accelerator system
+-- v1.1.3
 -- DEBUG FUNCTION
 local function print_table(table)
     for key, value in ipairs(table) do
@@ -67,7 +68,7 @@ local periph_name = {
     A2R1E1 = "redstone_relay_16",
     A1R1E1 = "redstone_relay_17",
     A1R2E1 = "redstone_relay_18",
-    A2R2E1 = "redstone_relay_19"
+    A2R2E1 = "redstone_relay_22"
 }
 
 local hardware_state = {
@@ -232,12 +233,22 @@ local function plan_craft()
 end
 
 local function start_craft()
-    if craft.A1.n_item > 0 then
+    if craft.A1.n_item <= 0 and craft.A2.n_item <= 0 then
+        print("No items to process in either accelerator!")
+        return false
+    elseif craft.A1.n_item > 0 and craft.A2.n_item > 0 then
+        craft.A1.n_item = craft.A1.n_item - 1
+        craft.A2.n_item = craft.A2.n_item - 1
+        pulse_2_relays("A1R1E1", "A2R1E1")
+        hardware_state.A1.active = true
+        hardware_state.A2.active = true
+        print("Starting craft in Accelerator A1 with " .. craft.A1.n_item .. " items.")
+
+    elseif craft.A1.n_item > 0 then
         craft.A1.n_item = craft.A1.n_item - 1
         pulse_relay("A1R1E1")
         hardware_state.A1.active = true
-    end
-    if craft.A2.n_item > 0 then
+    elseif craft.A2.n_item > 0 then
         craft.A2.n_item = craft.A2.n_item - 1
         pulse_relay("A2R1E1")   
         hardware_state.A2.active = true
