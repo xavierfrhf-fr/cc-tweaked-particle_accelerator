@@ -19,6 +19,7 @@ local verbose = {
 
 local craft = {
     A1 = {
+        n_item = 1,
         R1 = {
             speed_target = 5,
             collisions = false,
@@ -26,22 +27,23 @@ local craft = {
             item_injection = false
         },
         R2 = {
-            speed_target = 11,
-            collisions = false,
+            speed_target = 12,
+            collisions = true,
             upper_ring = false,
-            item_injection = true
+            item_injection = false
         }
     },
     A2 = {
+        n_item = 1,
         R1 = {
-            speed_target = 15,
+            speed_target = 5,
             collisions = false,
-            upper_ring = false,
+            upper_ring = true,
             item_injection = false
         },
         R2 = {
-            speed_target = 15,
-            collisions = false,
+            speed_target = 12,
+            collisions = true,
             upper_ring = false,
             item_injection = false
         }
@@ -70,7 +72,7 @@ local periph_name = {
 
 local hardware_state = {
     A1 = {
-        active = true,
+        active = false,
         R1 = {
             I1 = 0,
             O1 = {
@@ -230,7 +232,16 @@ local function plan_craft()
 end
 
 local function start_craft()
-    -- start craft code here
+    if craft.A1.n_item > 0 then
+        craft.A1.n_item = craft.A1.n_item - 1
+        pulse_relay("A1R1E1")
+        hardware_state.A1.active = true
+    end
+    if craft.A2.n_item > 0 then
+        craft.A2.n_item = craft.A2.n_item - 1
+        pulse_relay("A2R1E1")   
+        hardware_state.A2.active = true
+    end
 end
 
 -- INITIALIZATION FUNCTIONS
