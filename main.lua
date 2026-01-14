@@ -1,5 +1,5 @@
 --Code for CC:Tweaked to manage an oritech particle accelerator system
--- v1.1.3
+-- v1.1.5
 -- DEBUG FUNCTION
 local function print_table(table)
     for key, value in ipairs(table) do
