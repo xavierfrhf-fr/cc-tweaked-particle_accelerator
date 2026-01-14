@@ -1,5 +1,5 @@
 --Code for CC:Tweaked to manage an oritech particle accelerator system
--- v1.1.6
+-- v1.2.0
 -- DEBUG FUNCTION
 local function print_table(table)
     for key, value in ipairs(table) do
@@ -321,7 +321,42 @@ end
 local function event_manager()
     while true do
         ready_to_collide = false
-        if hardware_state.A1.active then
+        if hardware_state.A1.active == false and hardware_state.A2.active == false then
+            coroutine.yield()
+        elseif hardware_state.A1.active and hardware_state.A2.active then
+           if hardware_state.A1.R1.I1 >= craft.A1.R1.speed_target and hardware_state.A2.R1.I1 >= craft.A2.R1.speed_target then
+                print("Both A1R1 and A2R1 reached target speed!")
+                if craft.A1.R1.item_injection and craft.A2.R1.item_injection then
+                    print("Injecting items into A1R1 and A2R1...")
+                    print("Not implemented yet.")
+                elseif craft.A1.R1.upper_ring and craft.A2.R1.upper_ring then
+                    print("Activating upper rings for A1R1 and A2R1...")
+                    pulse_2_relays("A1R1O1", "A2R1O1")
+                elseif craft.A1.R1.collisions and craft.A2.R1.collisions then
+                    ready_to_collide = true
+                    print("Managing collisions for A1R1 and A2R1...")
+                end
+            elseif hardware_state.A1.R2.I1 >= craft.A1.R2.speed_target and hardware_state.A2.R2.I1 >= craft.A2.R2.speed_target then
+                print("Both A1R2 and A2R2 reached target speed!")
+                if craft.A1.R2.item_injection and craft.A2.R2.item_injection then
+                    print("Injecting items into A1R2 and A2R2...")
+                    pulse_2_relays("A1R2E1", "A2R2E1")
+                    print("Not implemented yet.")
+                elseif craft.A1.R2.upper_ring and craft.A2.R2.upper_ring then
+                    print("Activating upper rings for A1R2 and A2R2...")
+                    print("Not implemented yet.")
+                elseif craft.A1.R2.collisions and craft.A2.R2.collisions then
+                    if ready_to_collide then
+                        print("Both accelerators ready to collide! Initiating collision sequence...")
+                        pulse_2_relays("A1R2O1", "A2R2O1")
+                    else
+                        print("Both A1R2 and A2R2 ready for collision, but R1 rings not ready yet.")
+                    end
+                    
+                end
+            end
+
+        elseif hardware_state.A1.active then     
             if hardware_state.A1.R1.I1 >= craft.A1.R1.speed_target then
                 print("A1R1 reached target speed!")
                 if craft.A1.R1.item_injection then
@@ -348,8 +383,7 @@ local function event_manager()
                     print("A1R2 Ready for collision...")
                 end
             end
-        end
-        if hardware_state.A2.active then
+        elseif hardware_state.A2.active then
             if hardware_state.A2.R1.I1 >= craft.A2.R1.speed_target then
                 print("A2R1 reached target speed!")
                 if craft.A2.R1.item_injection then
