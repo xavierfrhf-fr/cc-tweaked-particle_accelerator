@@ -20,7 +20,7 @@ local verbose = {
 
 local craft = {
     A1 = {
-        n_item = 1,
+        n_item = 0,
         R1 = {
             speed_target = 5,
             collisions = false,
@@ -44,9 +44,9 @@ local craft = {
         },
         R2 = {
             speed_target = 12,
-            collisions = true,
+            collisions = false,
             upper_ring = false,
-            item_injection = false
+            item_injection = true
         }
 
     }
