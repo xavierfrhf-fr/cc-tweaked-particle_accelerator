@@ -1,5 +1,5 @@
 --Code for CC:Tweaked to manage an oritech particle accelerator system
--- v1.2.0
+-- v1.2.1
 -- DEBUG FUNCTION
 local function print_table(table)
     for key, value in ipairs(table) do
@@ -20,7 +20,7 @@ local verbose = {
 
 local craft = {
     A1 = {
-        n_item = 0,
+        n_item = 1,
         R1 = {
             speed_target = 5,
             collisions = false,
@@ -333,7 +333,7 @@ local function event_manager()
                     print("Activating upper rings for A1R1 and A2R1...")
                     pulse_2_relays("A1R1O1", "A2R1O1")
                 elseif craft.A1.R1.collisions and craft.A2.R1.collisions then
-                    ready_to_collide = true
+                    
                     print("Managing collisions for A1R1 and A2R1...")
                 end
             elseif hardware_state.A1.R2.I1 >= craft.A1.R2.speed_target and hardware_state.A2.R2.I1 >= craft.A2.R2.speed_target then
@@ -346,12 +346,10 @@ local function event_manager()
                     print("Activating upper rings for A1R2 and A2R2...")
                     print("Not implemented yet.")
                 elseif craft.A1.R2.collisions and craft.A2.R2.collisions then
-                    if ready_to_collide then
-                        print("Both accelerators ready to collide! Initiating collision sequence...")
-                        pulse_2_relays("A1R2O1", "A2R2O1")
-                    else
-                        print("Both A1R2 and A2R2 ready for collision, but R1 rings not ready yet.")
-                    end
+
+                    print("Both accelerators ready to collide! Initiating collision sequence...")
+                    pulse_2_relays("A1R2O1", "A2R2O1")
+            
                     
                 end
             end
