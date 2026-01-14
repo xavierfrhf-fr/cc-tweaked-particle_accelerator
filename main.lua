@@ -1,5 +1,5 @@
 --Code for CC:Tweaked to manage an oritech particle accelerator system
--- v1.2.1
+-- v1.2.2
 -- DEBUG FUNCTION
 local function print_table(table)
     for key, value in ipairs(table) do
@@ -44,9 +44,9 @@ local craft = {
         },
         R2 = {
             speed_target = 12,
-            collisions = false,
+            collisions = true,
             upper_ring = false,
-            item_injection = true
+            item_injection = false
         }
 
     }
